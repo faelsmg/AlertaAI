@@ -1,0 +1,38 @@
+
+{% extends "base.html" %}
+{% block title %}Gerenciar Grupos de Agentes{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Gerenciar Grupos de Agentes</h2>
+
+    <form method="POST" class="mb-4">
+        <div class="row g-2 align-items-center">
+            <div class="col-auto">
+                <input type="text" name="nome" class="form-control" placeholder="Nome do grupo" required>
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-success">Criar Grupo</button>
+            </div>
+        </div>
+    </form>
+
+    {% if grupos %}
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            Grupos Cadastrados
+        </div>
+        <ul class="list-group list-group-flush">
+            {% for grupo in grupos %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                {{ grupo.nome }}
+                <a href="#" class="btn btn-sm btn-outline-primary disabled">Gerenciar Agentes</a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% else %}
+    <p class="text-muted">Nenhum grupo cadastrado ainda.</p>
+    {% endif %}
+</div>
+{% endblock %}

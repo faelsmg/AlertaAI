@@ -1,0 +1,33 @@
+{% extends 'base_agente.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Painel do Agente</h2>
+  <div class="row mt-4">
+    <div class="col-md-4">
+      <div class="card text-white bg-primary mb-3">
+        <div class="card-body">
+          <h5 class="card-title">Chamados Atribuídos</h5>
+          <p class="card-text display-4">{{ total_chamados }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card text-white bg-warning mb-3">
+        <div class="card-body">
+          <h5 class="card-title">Pendentes</h5>
+          <p class="card-text display-4">{{ pendentes }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card text-white bg-success mb-3">
+        <div class="card-body">
+          <h5 class="card-title">Armadilhas Ativas</h5>
+          <p class="card-text display-4">{{ armadilhas }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

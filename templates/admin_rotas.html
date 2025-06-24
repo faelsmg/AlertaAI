@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Criar Rota por Grupo</h2>
+  <form method="POST">
+    <div class="mb-3">
+      <label>Nome da Rota</label>
+      <input type="text" name="nome_rota" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+      <label>Grupo</label>
+      <select name="grupo_id" class="form-select" required>
+        <option value="">Selecione o grupo</option>
+        {% for grupo in grupos %}
+          <option value="{{ grupo.id }}">{{ grupo.nome }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div id="enderecos-container">
+      <label>Endereços da Rota</label>
+      <div class="input-group mb-2">
+        <input type="text" name="enderecos[]" class="form-control" placeholder="Endereço completo" required>
+        <button type="button" class="btn btn-danger" onclick="removerEndereco(this)">X</button>
+      </div>
+    </div>
+    <button type="button" class="btn btn-secondary mb-3" onclick="adicionarEndereco()">+ Endereço</button>
+    <br>
+    <button type="submit" class="btn btn-primary">Salvar Rota</button>
+  </form>
+
+  <hr>
+  <h3>Rotas Cadastradas</h3>
+  <ul>
+    {% for rota in rotas %}
+      <li>{{ rota.nome }} - Grupo ID {{ rota.grupo_id }}</li>
+    {% endfor %}
+  </ul>
+</div>
+
+<script>
+function adicionarEndereco() {
+  const container = document.getElementById("enderecos-container");
+  const div = document.createElement("div");
+  div.className = "input-group mb-2";
+  div.innerHTML = `
+    <input type="text" name="enderecos[]" class="form-control" placeholder="Endereço completo" required>
+    <button type="button" class="btn btn-danger" onclick="removerEndereco(this)">X</button>
+  `;
+  container.appendChild(div);
+}
+
+function removerEndereco(btn) {
+  btn.parentElement.remove();
+}
+</script>
+{% endblock %}

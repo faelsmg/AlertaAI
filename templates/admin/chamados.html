@@ -1,0 +1,64 @@
+{% extends 'base_admin.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Chamados de Denúncias com Dengue</h2>
+
+  <form method="GET" class="mb-3">
+    <div class="row">
+      <div class="col-md-3">
+        <label for="status">Filtrar por status:</label>
+        <select class="form-control" name="status" onchange="this.form.submit()">
+          <option value="">Todos</option>
+          <option value="pendente" {% if filtro_status == 'pendente' %}selected{% endif %}>Pendente</option>
+          <option value="em_andamento" {% if filtro_status == 'em_andamento' %}selected{% endif %}>Em andamento</option>
+          <option value="resolvido" {% if filtro_status == 'resolvido' %}selected{% endif %}>Resolvido</option>
+        </select>
+      </div>
+    </div>
+  </form>
+
+  <table class="table table-bordered mt-3">
+    <thead class="table-light">
+      <tr>
+        <th>ID</th>
+        <th>Endereço</th>
+        <th>Status</th>
+        <th>Data de Criação</th>
+        <th>SLA</th>
+        <th>Grupo Responsável</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for chamado in chamados %}
+        <tr>
+          <td>{{ chamado.id }}</td>
+          <td>{{ chamado.endereco or 'Não informado' }}</td>
+          <td>{{ chamado.status }}</td>
+          <td>{{ chamado.data.strftime('%d/%m/%Y %H:%M') }}</td>
+          <td>
+            {% set horas = ((now - chamado.data).total_seconds() // 3600)|int %}
+            {{ horas }}h
+          </td>
+          <td>
+            <form method="POST" action="{{ url_for('admin_routes.atribuir_grupo_chamado', id=chamado.id) }}">
+              <select name="grupo_id" class="form-control form-select" onchange="this.form.submit()">
+                <option value="">-- Escolher --</option>
+                {% for grupo in grupos %}
+                  <option value="{{ grupo.id }}" {% if chamado.grupo_id == grupo.id %}selected{% endif %}>
+                    {{ grupo.nome }}
+                  </option>
+                {% endfor %}
+              </select>
+            </form>
+          </td>
+          <td>
+			<a href="{{ url_for('admin_routes.ver_chamado', id=chamado.id) }}" class="btn btn-sm btn-outline-info">Detalhes</a>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

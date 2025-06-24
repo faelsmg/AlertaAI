@@ -1,0 +1,74 @@
+{% extends 'base_admin.html' %}
+{% block content %}
+
+<h3>📶 Monitoramento em Tempo Real</h3>
+
+<div class="row text-center mb-4">
+  <div class="col-md-3">
+    <div class="alert alert-danger">
+      <strong>{{ total_denuncias_abertas }}</strong><br>Chamados em Aberto
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="alert alert-success">
+      <strong>{{ total_chamados_resolvidos_hoje }}</strong><br>Resolvidos Hoje
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="alert alert-warning">
+      <strong>{{ total_armadilhas_vencidas }}</strong><br>Armadilhas Vencidas
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="alert alert-info">
+      <strong>{{ agentes_em_campo|length }}</strong><br>Agentes Online
+    </div>
+  </div>
+</div>
+
+<div id="mapa-monitoramento" style="height: 600px;" class="rounded border"></div>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=SUA_CHAVE_GOOGLEMAPS_AQUI&callback=initMap" async defer></script>
+<script>
+let map;
+
+function initMap() {
+  const centro = { lat: -23.1896, lng: -45.8841 };
+  map = new google.maps.Map(document.getElementById('mapa-monitoramento'), {
+    center: centro,
+    zoom: 14
+  });
+
+  // Denúncias (vermelho)
+  {% for d in denuncias %}
+  new google.maps.Marker({
+    position: { lat: {{ d.latitude }}, lng: {{ d.longitude }} },
+    map,
+    icon: "http://maps.google.com/mapfiles/ms/icons/red-dot.png",
+    title: "Denúncia: {{ d.status }}"
+  });
+  {% endfor %}
+
+  // Armadilhas (verde ou amarela)
+  {% for a in armadilhas %}
+  new google.maps.Marker({
+    position: { lat: {{ a.latitude }}, lng: {{ a.longitude }} },
+    map,
+    icon: "{{ 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png' if a.vencida else 'http://maps.google.com/mapfiles/ms/icons/green-dot.png' }}",
+    title: "Armadilha: {{ a.tipo }}"
+  });
+  {% endfor %}
+
+  // Agentes (azul)
+  {% for ag in agentes_em_campo %}
+  new google.maps.Marker({
+    position: { lat: {{ ag.latitude }}, lng: {{ ag.longitude }} },
+    map,
+    icon: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+    title: "Agente: {{ ag.nome }}"
+  });
+  {% endfor %}
+}
+</script>
+
+{% endblock %}

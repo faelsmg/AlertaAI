@@ -1,0 +1,156 @@
+{% extends base_template %}
+
+{% block content %}
+<h3 class="mb-4">Cadastrar Rotas por Grupo</h3>
+
+<form method="POST" action="{{ url_for('admin_routes.criar_rota') }}" class="mb-3" id="form-rota">
+  <div class="row">
+    <div class="col-md-3">
+      <label>CEP:</label>
+      <input type="text" class="form-control" name="cep" id="cep" required>
+    </div>
+    <div class="col-md-4">
+      <label>Rua (auto):</label>
+      <input type="text" class="form-control" name="rua" id="rua" readonly>
+    </div>
+    <div class="col-md-2">
+      <label>Número Início:</label>
+      <input type="number" class="form-control" name="numero_inicio" required>
+    </div>
+    <div class="col-md-2">
+      <label>Número Fim:</label>
+      <input type="number" class="form-control" name="numero_fim" required>
+    </div>
+    <div class="col-md-3">
+      <label>Grupo de Agentes:</label>
+      <select class="form-control" name="grupo_id" required>
+        <option value="">Selecione um grupo</option>
+        {% for grupo in grupos %}
+          <option value="{{ grupo.id }}">{{ grupo.nome }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-1">
+      <label>&nbsp;</label>
+      <button type="submit" class="btn btn-primary w-100">Salvar</button>
+    </div>
+  </div>
+</form>
+
+<div id="mapa" style="height: 500px;" class="mt-4 border rounded"></div>
+
+<script>
+document.getElementById("cep").addEventListener("blur", function() {
+  const cep = this.value.replace(/\D/g, '');
+  if (cep.length === 8) {
+    fetch(`/api/endereco-por-cep/${cep}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.rua) {
+          document.getElementById("rua").value = data.rua;
+        }
+      })
+      .catch(error => console.error("Erro ao buscar CEP:", error));
+  }
+});
+</script>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyClTfCYAfyVJ03aFc2KdxVOH1La3YUw8oM&callback=initMap" async defer></script>
+<script>
+let map;
+const rotasPorGrupo = {{ rotas_por_grupo|tojson }};
+const cores = ['#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6'];
+
+function initMap() {
+  map = new google.maps.Map(document.getElementById("mapa"), {
+    center: { lat: -23.55, lng: -46.63 },
+    zoom: 12
+  });
+
+  const geocoder = new google.maps.Geocoder();
+  const bounds = new google.maps.LatLngBounds();
+
+  Object.keys(rotasPorGrupo).forEach((grupoId, index) => {
+    const cor = cores[index % cores.length];
+    rotasPorGrupo[grupoId].forEach((rota) => {
+      const enderecoInicio = `${rota.rua}, ${rota.numero_inicio}, ${rota.cep}, Brasil`;
+      const enderecoFim = `${rota.rua}, ${rota.numero_fim}, ${rota.cep}, Brasil`;
+
+      Promise.all([
+        new Promise((resolve, reject) => {
+          geocoder.geocode({ address: enderecoInicio }, (results, status) => {
+            if (status === "OK" && results[0]) resolve(results[0].geometry.location);
+            else reject("Erro no início: " + status);
+          });
+        }),
+        new Promise((resolve, reject) => {
+          geocoder.geocode({ address: enderecoFim }, (results, status) => {
+            if (status === "OK" && results[0]) resolve(results[0].geometry.location);
+            else reject("Erro no fim: " + status);
+          });
+        })
+      ])
+      .then(([inicio, fim]) => {
+        new google.maps.Polyline({
+          path: [inicio, fim],
+          geodesic: true,
+          strokeColor: cor,
+          strokeOpacity: 1.0,
+          strokeWeight: 3,
+          map: map
+        });
+
+        // InfoWindow no meio da linha
+        const meioLat = (inicio.lat() + fim.lat()) / 2;
+        const meioLng = (inicio.lng() + fim.lng()) / 2;
+
+        new google.maps.InfoWindow({
+          content: `${rota.rua}, ${rota.numero_inicio} - ${rota.numero_fim}`
+        }).open(map, new google.maps.Marker({
+          position: { lat: meioLat, lng: meioLng },
+          map: map,
+          icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 3,
+            fillColor: cor,
+            fillOpacity: 1,
+            strokeWeight: 0
+          }
+        }));
+
+        bounds.extend(inicio);
+        bounds.extend(fim);
+        map.fitBounds(bounds);
+      })
+      .catch(err => console.warn("Erro ao geocodificar:", err));
+    });
+  });
+}
+</script>
+
+<h5>Rotas Cadastradas</h5>
+<table class="table table-bordered">
+  <thead class="table-light">
+    <tr>
+      <th>Grupo</th>
+      <th>Rua</th>
+      <th>CEP</th>
+      <th>Nº Início</th>
+      <th>Nº Fim</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for grupo in grupos %}
+      {% for rota in grupo.rotas_grupo %}
+      <tr>
+        <td>{{ grupo.nome }}</td>
+        <td>{{ rota.rua }}</td>
+        <td>{{ rota.cep }}</td>
+        <td>{{ rota.numero_inicio or '-' }}</td>
+        <td>{{ rota.numero_fim or '-' }}</td>
+      </tr>
+      {% endfor %}
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

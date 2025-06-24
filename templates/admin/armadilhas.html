@@ -1,0 +1,144 @@
+{% extends 'base_admin.html' %}
+
+{% block content %}
+<h3 class="mb-4">Cadastro de Armadilhas</h3>
+
+<div id="map" style="height: 400px;" class="mb-4 border rounded"></div>
+
+<form method="POST" action="{{ url_for('admin_routes.nova_armadilha') }}" class="row g-3">
+  <div class="col-md-3">
+    <label for="cep">CEP:</label>
+    <input type="text" class="form-control" id="cep" placeholder="Ex: 12246021">
+  </div>
+  <div class="col-md-3">
+    <label for="numero">Número:</label>
+    <input type="text" class="form-control" id="numero" placeholder="Ex: 123">
+  </div>
+  <div class="col-md-2 d-flex align-items-end">
+    <button type="button" class="btn btn-secondary w-100" onclick="buscarEndereco()">Buscar Local</button>
+  </div>
+
+  <div class="col-md-6">
+    <label for="endereco">Endereço:</label>
+    <input type="text" class="form-control" name="endereco" id="endereco" readonly required>
+  </div>
+
+  <div class="col-md-3">
+    <label for="tipo">Tipo:</label>
+    <select class="form-control" name="tipo" required>
+      <option value="Tipo 1">Tipo 1</option>
+      <option value="Tipo 2">Tipo 2</option>
+      <option value="Tipo 3">Tipo 3</option>
+    </select>
+  </div>
+
+<label for="grupo_id">Grupo de Agentes:</label>
+<select name="grupo_id" required>
+    <option value="">Selecione um grupo</option>
+    {% for grupo in grupos %}
+        <option value="{{ grupo.id }}">{{ grupo.nome }}</option>
+    {% endfor %}
+</select>
+
+  <div class="col-md-3">
+    <label for="latitude">Latitude:</label>
+    <input type="text" class="form-control" name="latitude" id="latitude" readonly required>
+  </div>
+  <div class="col-md-3">
+    <label for="longitude">Longitude:</label>
+    <input type="text" class="form-control" name="longitude" id="longitude" readonly required>
+  </div>
+  <div class="col-md-3 d-flex align-items-end">
+    <button type="submit" class="btn btn-primary w-100">Salvar Armadilha</button>
+  </div>
+</form>
+
+<h5 class="mt-5">Armadilhas Existentes</h5>
+<table class="table table-bordered">
+  <thead class="table-light">
+    <tr>
+      <th>Endereço</th>
+      <th>Tipo</th>
+      <th>Data de Instalação</th>
+      <th>Dias desde Instalação</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for armadilha in armadilhas %}
+    <tr>
+      <td>{{ armadilha.endereco }}</td>
+      <td>{{ armadilha.tipo }}</td>
+      <td>{{ armadilha.data_instalacao.strftime('%d/%m/%Y') if armadilha.data_instalacao }}</td>
+      <td>
+        {% if armadilha.dias_instalado is number %}
+          {{ armadilha.dias_instalado }} dias
+        {% else %}
+          {{ armadilha.dias_instalado }}
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyClTfCYAfyVJ03aFc2KdxVOH1La3YUw8oM&callback=initMap&libraries=places" async defer></script>
+<script>
+let map, marker;
+
+function initMap() {
+  const centro = { lat: -23.1896, lng: -45.8841 };
+  map = new google.maps.Map(document.getElementById("map"), {
+    center: centro,
+    zoom: 14,
+  });
+
+  {% for armadilha in armadilhas %}
+  new google.maps.Marker({
+    position: { lat: {{ armadilha.latitude }}, lng: {{ armadilha.longitude }} },
+    map,
+    title: "{{ armadilha.tipo }}",
+  });
+  {% endfor %}
+
+  map.addListener("click", (e) => {
+    const lat = e.latLng.lat();
+    const lng = e.latLng.lng();
+    if (marker) marker.setMap(null);
+
+    marker = new google.maps.Marker({
+      position: { lat, lng },
+      map,
+    });
+
+    document.getElementById("latitude").value = lat;
+    document.getElementById("longitude").value = lng;
+  });
+}
+
+function buscarEndereco() {
+  const cep = document.getElementById("cep").value;
+  const numero = document.getElementById("numero").value;
+  const enderecoCompleto = `${cep}, ${numero}, Brasil`;
+  const geocoder = new google.maps.Geocoder();
+
+  geocoder.geocode({ address: enderecoCompleto }, (results, status) => {
+    if (status === "OK") {
+      const location = results[0].geometry.location;
+      map.setCenter(location);
+      if (marker) marker.setMap(null);
+
+      marker = new google.maps.Marker({
+        map,
+        position: location,
+      });
+
+      document.getElementById("latitude").value = location.lat();
+      document.getElementById("longitude").value = location.lng();
+      document.getElementById("endereco").value = results[0].formatted_address;
+    } else {
+      alert("Endereço não encontrado: " + status);
+    }
+  });
+}
+</script>
+{% endblock %}

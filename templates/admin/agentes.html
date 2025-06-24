@@ -1,0 +1,58 @@
+{% extends 'base_admin.html' %}
+{% block content %}
+<h2>👮 Gestão de Agentes</h2>
+
+<form method="POST" action="{{ url_for('admin_routes.criar_agente') }}" class="mb-4">
+  <div class="row">
+    <div class="col"><input class="form-control" name="nome" placeholder="Nome" required></div>
+    <div class="col"><input class="form-control" name="email" placeholder="Email" required></div>
+    <div class="col"><input class="form-control" name="senha" placeholder="Senha" type="password" required></div>
+    <div class="col">
+      <select name="grupo_id" class="form-control" required>
+        <option value="">Grupo</option>
+        {% for grupo in grupos %}
+        <option value="{{ grupo.id }}">{{ grupo.nome }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col"><button class="btn btn-primary" type="submit">Cadastrar</button></div>
+  </div>
+</form>
+
+<input type="text" class="form-control mb-2" id="searchInput" placeholder="🔍 Buscar por nome ou email">
+
+<table class="table table-bordered table-hover">
+  <thead>
+    <tr>
+      <th>Nome</th>
+      <th>Email</th>
+      <th>Grupo</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody id="agentesTable">
+    {% for agente in agentes %}
+    <tr>
+      <td>{{ agente.nome }}</td>
+      <td>{{ agente.email }}</td>
+      <td>{{ agente.grupo.nome if agente.grupo else '-' }}</td>
+      <td>
+        <a href="{{ url_for('admin_routes.deletar_agente', id=agente.id) }}" class="btn btn-danger btn-sm">Excluir</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<script>
+document.getElementById('searchInput').addEventListener('keyup', function () {
+  const value = this.value.toLowerCase();
+  const rows = document.querySelectorAll('#agentesTable tr');
+  rows.forEach(row => {
+    const nome = row.children[0].textContent.toLowerCase();
+    const email = row.children[1].textContent.toLowerCase();
+    row.style.display = (nome.includes(value) || email.includes(value)) ? '' : 'none';
+  });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,100 @@
+{% extends 'base_admin.html' %}
+
+{% block content %}
+<h2 class="mb-4">📊 Dashboard - Visão Geral</h2>
+
+<div class="row">
+  <div class="col-md-3">
+    <div class="card text-bg-primary mb-3">
+      <div class="card-body">
+        <h5 class="card-title">Denúncias Recebidas</h5>
+        <p class="card-text fs-4">{{ total_denuncias }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-bg-warning mb-3">
+      <div class="card-body">
+        <h5 class="card-title">Armadilhas Instaladas</h5>
+        <p class="card-text fs-4">{{ total_armadilhas }}</p>
+        <small>{{ vencidas }} vencidas</small>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-bg-success mb-3">
+      <div class="card-body">
+        <h5 class="card-title">SLA Médio (dias)</h5>
+        <p class="card-text fs-4">{{ sla_medio }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-bg-dark mb-3">
+      <div class="card-body">
+        <h5 class="card-title">Agentes Ativos</h5>
+        <p class="card-text fs-4">{{ agentes_ativos }}</p>
+        <small>{{ agentes_em_campo }} em campo agora</small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-6">
+    <canvas id="grafico-bairros" height="300"></canvas>
+  </div>
+  <div class="col-md-6">
+    <canvas id="grafico-focos" height="300"></canvas>
+  </div>
+</div>
+
+<div class="row mt-5">
+  <div class="col-md-6">
+    <h5>✅ Chamados Encerrados no Mês</h5>
+    <p class="fs-4">{{ encerrados_mes }}</p>
+  </div>
+  <div class="col-md-6">
+    <h5>🔔 Últimas 5 denúncias</h5>
+    <ul class="list-group">
+      {% for d in ultimas_denuncias %}
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        {{ d.bairro }} - {{ d.data.strftime('%d/%m %H:%M') }}
+        <span class="badge text-bg-primary">{{ d.status }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const ctxBairros = document.getElementById('grafico-bairros').getContext('2d');
+new Chart(ctxBairros, {
+    type: 'bar',
+    data: {
+        labels: {{ bairros_labels | tojson }},
+				datasets: [{
+					label: 'Denúncias por bairro',
+					data: {{ bairros_counts | tojson }},
+					backgroundColor: 'rgba(255, 99, 132, 0.2)',
+					borderColor: 'rgba(255, 99, 132, 1)',
+					borderWidth: 1
+}]
+    }
+});
+
+const ctxFocos = document.getElementById('grafico-focos').getContext('2d');
+new Chart(ctxFocos, {
+    type: 'bar',
+    data: {
+        labels: {{ top_bairros_focos_labels | tojson }},
+        datasets: [{
+            label: 'Top 5 Bairros com Focos',
+            data: {{ top_bairros_focos_counts | tojson }},
+            backgroundColor: 'rgba(255, 99, 132, 0.7)',
+        }]
+    }
+});
+</script>
+{% endblock %}

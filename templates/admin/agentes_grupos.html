@@ -1,0 +1,42 @@
+{% extends base_template %}
+
+{% block content %}
+<h3 class="mb-4">Grupos de Agentes</h3>
+
+<!-- Formulário de busca -->
+<form method="GET" action="{{ url_for('admin_routes.admin_agentes_grupos') }}" class="mb-3">
+    <input type="text" name="search" class="form-control" placeholder="Buscar grupo por nome..." value="{{ search }}">
+</form>
+
+<!-- Formulário de criação de grupo -->
+<form method="POST" action="{{ url_for('admin_routes.criar_grupo') }}" class="d-flex gap-2 mb-4">
+    <input type="text" name="nome_grupo" class="form-control" placeholder="Nome do grupo" required>
+    <button class="btn btn-success" type="submit">Criar Grupo</button>
+</form>
+
+<!-- Tabela de grupos -->
+<table class="table table-bordered table-hover">
+    <thead class="table-light">
+        <tr>
+            <th>Nome</th>
+            <th style="width: 150px;">Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for grupo in grupos %}
+        <tr>
+            <td>{{ grupo.nome }}</td>
+            <td>
+                <!-- Botão de edição (em breve funcional) -->
+                <!-- <a href="{{ url_for('admin_routes.editar_grupo', id=grupo.id) }}" class="btn btn-sm btn-warning">Editar</a> -->
+                <form method="POST" action="{{ url_for('admin_routes.deletar_grupo', id=grupo.id) }}" style="display:inline;" onsubmit="return confirm('Tem certeza que deseja excluir este grupo?');">
+                    <button class="btn btn-sm btn-danger">Excluir</button>
+                </form>
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="2">Nenhum grupo encontrado.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

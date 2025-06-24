@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Admin AlertaAI{% endblock %}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .sidebar {
+            width: 200px;
+            float: left;
+            background: #f2f2f2;
+            height: 100vh;
+            padding: 20px;
+        }
+        .content {
+            margin-left: 220px;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h3>Admin</h3>
+        <ul>
+            <li><a href="{{ url_for('admin_routes.admin_dashboard') }}">Dashboard</a></li>
+            <li><a href="{{ url_for('admin_routes.admin_chamados') }}">Chamados</a></li>
+            <li><a href="{{ url_for('admin_routes.admin_armadilhas') }}">Armadilhas</a></li>
+            <li><a href="{{ url_for('logout') }}">Sair</a></li>
+        </ul>
+    </div>
+
+    <div class="content">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

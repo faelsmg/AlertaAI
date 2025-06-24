@@ -1,0 +1,44 @@
+{% extends 'base_admin.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Detalhes do Chamado #{{ chamado.id }}</h2>
+  <hr>
+
+  <div class="mb-3">
+    <strong>Status:</strong> {{ chamado.status }}<br>
+    <strong>Resultado IA:</strong> {{ 'Detectado' if chamado.resultado_ia else 'Não detectado' }}<br>
+    <strong>Data de Abertura:</strong> {{ chamado.data.strftime('%d/%m/%Y %H:%M') if chamado.data else '---' }}<br>
+    {% if chamado.data_encerramento %}
+      <strong>Data de Encerramento:</strong> {{ chamado.data_encerramento.strftime('%d/%m/%Y %H:%M') }}<br>
+    {% endif %}
+    <strong>Endereço:</strong> {{ chamado.endereco or '---' }}<br>
+    <strong>Bairro:</strong> {{ chamado.bairro or '---' }}<br>
+    <strong>Comentário:</strong> {{ chamado.comentario or '---' }}
+  </div>
+
+  <div class="mb-4">
+    <strong>Imagem:</strong><br>
+    <img src="{{ url_for('static', filename='uploads/' + chamado.imagem) }}" class="img-fluid rounded" style="max-width: 400px;">
+  </div>
+
+  <div class="mb-4">
+    <h5>Dados do Cidadão</h5>
+    <p><strong>Nome:</strong> {{ chamado.usuario.nome }}<br>
+    <strong>Email:</strong> {{ chamado.usuario.email }}</p>
+    <a href="mailto:{{ chamado.usuario.email }}" class="btn btn-outline-primary">Enviar Email</a>
+  </div>
+
+  {% if chamado.status != 'Encerrado' %}
+  <form method="POST" action="{{ url_for('admin_routes.encerrar_chamado', id=chamado.id) }}">
+    <div class="form-group">
+      <label for="comentario">Comentário (opcional):</label>
+      <textarea name="comentario" id="comentario" class="form-control" rows="3"></textarea>
+    </div>
+    <button type="submit" class="btn btn-success mt-3">Encerrar Chamado</button>
+  </form>
+  {% else %}
+  <div class="alert alert-success">Chamado encerrado.</div>
+  {% endif %}
+</div>
+{% endblock %}

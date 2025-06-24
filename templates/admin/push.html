@@ -1,0 +1,60 @@
+{% extends 'base_admin.html' %}
+
+{% block content %}
+<h2>📢 Enviar Push Message</h2>
+<form method="POST">
+  <div class="mb-3">
+    <label for="mensagem">Mensagem</label>
+    <textarea class="form-control" name="mensagem" required></textarea>
+  </div>
+  <div class="mb-3">
+    <label for="data_agendada">Agendar Envio</label>
+    <input type="datetime-local" name="data_agendada" class="form-control" required>
+  </div>
+  <div class="mb-3">
+    <label for="bairro">Bairro</label>
+    <input type="text" name="bairro" class="form-control">
+  </div>
+  <div class="mb-3">
+    <label for="cep">CEP</label>
+    <input type="text" name="cep" class="form-control">
+  </div>
+  <div class="mb-3">
+    <label for="grupo_id">Grupo</label>
+    <select name="grupo_id" class="form-select">
+      <option value="">Todos</option>
+      {% for g in grupos %}
+      <option value="{{ g.id }}">{{ g.nome }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <button type="submit" class="btn btn-primary">Agendar</button>
+</form>
+
+<hr>
+<h4 class="mt-4">📊 Histórico</h4>
+<table class="table table-bordered table-sm">
+  <thead>
+    <tr>
+      <th>Mensagem</th>
+      <th>Data Agendada</th>
+      <th>Status</th>
+      <th>Destino</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for msg in mensagens %}
+    <tr>
+      <td>{{ msg.mensagem[:50] }}...</td>
+      <td>{{ msg.data_agendada.strftime('%d/%m %H:%M') }}</td>
+      <td>{{ msg.status }}</td>
+      <td>
+        {% if msg.bairro %}Bairro: {{ msg.bairro }}<br>{% endif %}
+        {% if msg.cep %}CEP: {{ msg.cep }}<br>{% endif %}
+        {% if msg.grupo_id %}Grupo ID: {{ msg.grupo_id }}{% else %}Todos{% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
