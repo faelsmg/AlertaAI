@@ -1,8 +1,14 @@
 from ultralytics import YOLO
+import torch.serialization
 import os
 import shutil
 
-modelo = YOLO("model/best.pt")
+# Libera o uso seguro do modelo customizado do Ultralytics
+from ultralytics.nn.tasks import DetectionModel
+torch.serialization.add_safe_globals([DetectionModel])
+
+# Carrega o modelo com weights_only=False explicitamente
+modelo = YOLO("model/best.pt", task="detect", weights_only=False)
 
 def verificar_imagem(path_imagem):
     resultados = modelo(path_imagem, save=True, save_txt=False)
