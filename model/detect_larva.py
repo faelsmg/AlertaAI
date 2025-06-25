@@ -3,12 +3,12 @@ import torch.serialization
 import os
 import shutil
 
-# Libera o uso seguro do modelo customizado do Ultralytics
+# Adiciona permissão segura para carregar o modelo
 from ultralytics.nn.tasks import DetectionModel
 torch.serialization.add_safe_globals([DetectionModel])
 
-# Carrega o modelo com weights_only=False explicitamente
-modelo = YOLO("model/best.pt", task="detect", weights_only=False)
+# Carrega o modelo com segurança
+modelo = YOLO("model/best.pt", task="detect")
 
 def verificar_imagem(path_imagem):
     resultados = modelo(path_imagem, save=True, save_txt=False)
