@@ -1,0 +1,21 @@
+{% extends 'base_agente.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h3>Minhas Armadilhas</h3>
+  <form method="post" action="{{ url_for('agente_routes.criar_armadilha_agente') }}">
+    <input type="text" name="endereco" placeholder="Endereço" required class="form-control mb-2">
+    <input type="text" name="latitude" placeholder="Latitude" required class="form-control mb-2">
+    <input type="text" name="longitude" placeholder="Longitude" required class="form-control mb-2">
+    <input type="text" name="tipo" placeholder="Tipo de armadilha" required class="form-control mb-2">
+    <button type="submit" class="btn btn-primary">Criar Armadilha</button>
+  </form>
+  <hr>
+  <ul class="list-group">
+    {% for a in armadilhas %}
+      <li class="list-group-item">
+        📍 {{ a.endereco }} – {{ a.tipo }} ({{ a.data_instalacao.strftime('%d/%m/%Y') }})
+      </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}

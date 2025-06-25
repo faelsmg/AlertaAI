@@ -1,0 +1,50 @@
+{% extends 'base_agente.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>📄 Detalhes da Denúncia #{{ denuncia.id }}</h2>
+
+  <div class="card my-4">
+    <div class="card-body">
+      <p><strong>Status:</strong> {{ denuncia.status }}</p>
+      <p><strong>Data de Criação:</strong> {{ denuncia.data.strftime('%d/%m/%Y %H:%M') if denuncia.data }}</p>
+      <p><strong>Endereço:</strong> {{ denuncia.endereco or 'Não informado' }}</p>
+      <p><strong>Bairro:</strong> {{ denuncia.bairro or 'Não informado' }}</p>
+      <p><strong>Resultado IA:</strong>
+        {% if denuncia.resultado_ia %}
+          <span class="badge bg-danger">Positivo</span>
+        {% else %}
+          <span class="badge bg-success">Negativo</span>
+        {% endif %}
+      </p>
+      <p><strong>Comentário:</strong> {{ denuncia.comentario or 'Nenhum' }}</p>
+      <p><strong>Localização:</strong>
+        {% if denuncia.latitude and denuncia.longitude %}
+          <a href="https://www.google.com/maps?q={{ denuncia.latitude }},{{ denuncia.longitude }}" target="_blank">
+            Ver no mapa
+          </a>
+        {% else %}
+          Não disponível
+        {% endif %}
+      </p>
+      {% if denuncia.imagem %}
+        <p><strong>Imagem enviada:</strong></p>
+        <img src="{{ url_for('static', filename='uploads/' ~ denuncia.imagem) }}" alt="Imagem da denúncia" class="img-fluid mb-3" style="max-width: 400px;">
+      {% endif %}
+    </div>
+  </div>
+
+  {% if denuncia.status != 'Encerrado' %}
+  <form action="{{ url_for('agente_routes.encerrar_denuncia', id=denuncia.id) }}" method="post">
+    <div class="mb-3">
+      <label for="comentario" class="form-label">Adicionar Comentário:</label>
+      <textarea name="comentario" id="comentario" rows="3" class="form-control"></textarea>
+    </div>
+    <button type="submit" class="btn btn-success">✅ Encerrar Denúncia</button>
+  </form>
+  {% else %}
+    <div class="alert alert-success">Denúncia já encerrada em {{ denuncia.data_encerramento.strftime('%d/%m/%Y') if denuncia.data_encerramento }}</div>
+  {% endif %}
+
+</div>
+{% endblock %}

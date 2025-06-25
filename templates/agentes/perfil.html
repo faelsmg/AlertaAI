@@ -1,0 +1,17 @@
+{% extends 'base_agente.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h3>Editar Perfil</h3>
+  <form method="post">
+    <div class="mb-3">
+      <label>Nome</label>
+      <input type="text" class="form-control" name="nome" value="{{ current_user.nome }}">
+    </div>
+    <div class="mb-3">
+      <label>Telefone</label>
+      <input type="text" class="form-control" name="telefone" value="{{ current_user.telefone or '' }}">
+    </div>
+    <button type="submit" class="btn btn-success">Salvar Alterações</button>
+  </form>
+</div>
+{% endblock %}

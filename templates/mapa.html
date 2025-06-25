@@ -1,0 +1,98 @@
+{% extends base_template %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Mapa de Denúncias, Armadilhas e Rotas</h2>
+  <div id="mapa" style="height: 600px;" class="my-4"></div>
+</div>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyClTfCYAfyVJ03aFc2KdxVOH1La3YUw8oM&callback=initMap" async defer></script>
+
+<script>
+  const denuncias = {{ denuncias | tojson | safe }};
+  const armadilhas = {{ armadilhas | tojson | safe }};
+  const rotasPorGrupo = {{ rotas_por_grupo | tojson | safe }};
+
+  function initMap() {
+    const map = new google.maps.Map(document.getElementById("mapa"), {
+      center: { lat: -23.1896, lng: -45.8841 },
+      zoom: 12
+    });
+
+    const geocoder = new google.maps.Geocoder();
+
+    // 🟥 Denúncias - círculos vermelhos
+    denuncias.forEach(den => {
+      if (den.latitude && den.longitude) {
+        const pos = { lat: parseFloat(den.latitude), lng: parseFloat(den.longitude) };
+        new google.maps.Circle({
+          strokeColor: "#FF0000",
+          fillColor: "#FF0000",
+          strokeOpacity: 0.8,
+          fillOpacity: 0.35,
+          map,
+          center: pos,
+          radius: 40
+        });
+      }
+    });
+
+    // 🟨 Armadilhas - círculos amarelos
+    armadilhas.forEach(arm => {
+      if (arm.latitude && arm.longitude) {
+        const pos = { lat: parseFloat(arm.latitude), lng: parseFloat(arm.longitude) };
+        new google.maps.Circle({
+          strokeColor: "#FFD700",
+          fillColor: "#FFD700",
+          strokeOpacity: 0.8,
+          fillOpacity: 0.35,
+          map,
+          center: pos,
+          radius: 40
+        });
+      }
+    });
+
+    // 🟦 Rotas - linhas por grupo
+    const cores = ['#2196F3', '#4CAF50', '#9C27B0', '#E91E63', '#795548', '#00BCD4', '#FF5722'];
+
+    Object.keys(rotasPorGrupo).forEach((grupoId, idx) => {
+      const cor = cores[idx % cores.length];
+      const rotas = rotasPorGrupo[grupoId];
+
+      rotas.forEach(rota => {
+        const enderecoInicio = `${rota.rua}, ${rota.numero_inicio}, ${rota.cep}, Brasil`;
+        const enderecoFim = `${rota.rua}, ${rota.numero_fim}, ${rota.cep}, Brasil`;
+
+        Promise.all([
+          geocode(geocoder, enderecoInicio),
+          geocode(geocoder, enderecoFim)
+        ])
+        .then(([inicio, fim]) => {
+          new google.maps.Polyline({
+            path: [inicio, fim],
+            geodesic: true,
+            strokeColor: cor,
+            strokeOpacity: 1.0,
+            strokeWeight: 4,
+            map
+          });
+        })
+        .catch(err => console.warn("Erro ao geocodificar rota:", err));
+      });
+    });
+  }
+
+  function geocode(geocoder, endereco) {
+    return new Promise((resolve, reject) => {
+      geocoder.geocode({ address: endereco }, (results, status) => {
+        if (status === "OK" && results[0]) {
+          resolve(results[0].geometry.location);
+        } else {
+          reject("Erro geocoding: " + status);
+        }
+      });
+    });
+  }
+</script>
+{% endblock %}

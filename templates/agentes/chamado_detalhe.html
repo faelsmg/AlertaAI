@@ -1,0 +1,41 @@
+{% extends 'base_agente.html' %}
+
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Detalhes do Chamado #{{ chamado.id }}</h2>
+
+  <div class="card mt-3">
+    <div class="card-body">
+      <p><strong>Data:</strong> {{ chamado.data.strftime('%d/%m/%Y %H:%M') if chamado.data else '' }}</p>
+      <p><strong>Endereço:</strong> {{ chamado.endereco }}</p>
+      <p><strong>Bairro:</strong> {{ chamado.bairro or "Desconhecido" }}</p>
+      <p><strong>Status:</strong> {{ chamado.status }}</p>
+      <p><strong>Resultado da IA:</strong>
+        {% if chamado.resultado_ia %}
+          <span class="badge bg-danger">Foco detectado</span>
+        {% else %}
+          <span class="badge bg-success">Sem foco</span>
+        {% endif %}
+      </p>
+      <p><strong>Comentário:</strong> {{ chamado.comentario or "Nenhum" }}</p>
+      {% if chamado.imagem %}
+        <p><strong>Imagem:</strong></p>
+        <img src="{{ url_for('static', filename='uploads/' + chamado.imagem) }}" class="img-fluid rounded" alt="Imagem da denúncia">
+      {% endif %}
+    </div>
+  </div>
+
+  {% if chamado.status != 'Encerrado' %}
+  <form method="POST" action="{{ url_for('agente_routes.encerrar_chamado_agente', id=chamado.id) }}" class="mt-4">
+    <div class="form-group">
+      <label for="comentario">Comentário de encerramento:</label>
+      <textarea class="form-control" name="comentario" id="comentario" rows="3" required></textarea>
+    </div>
+    <button type="submit" class="btn btn-success mt-2">Encerrar Chamado</button>
+  </form>
+  {% endif %}
+
+  <a href="{{ url_for('agente_routes.chamados_agente') }}" class="btn btn-secondary mt-3">Voltar</a>
+</div>
+{% endblock %}

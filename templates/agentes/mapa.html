@@ -1,0 +1,54 @@
+{% extends base_template %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Mapa de Denúncias e Armadilhas</h2>
+  <div id="mapa" style="height: 600px;" class="my-4"></div>
+</div>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyClTfCYAfyVJ03aFc2KdxVOH1La3YUw8oM&callback=initMap" async defer></script>
+
+<script>
+  const denuncias = {{ denuncias|tojson }};
+  const armadilhas = {{ armadilhas|tojson }};
+
+  function initMap() {
+    const map = new google.maps.Map(document.getElementById("mapa"), {
+      center: { lat: -23.1896, lng: -45.8841 },
+      zoom: 12
+    });
+
+    // 🟥 Denúncias - círculos vermelhos
+    denuncias.forEach(den => {
+      if (den.latitude && den.longitude) {
+        const pos = { lat: parseFloat(den.latitude), lng: parseFloat(den.longitude) };
+        new google.maps.Circle({
+          strokeColor: "#FF0000",
+          fillColor: "#FF0000",
+          strokeOpacity: 0.8,
+          fillOpacity: 0.35,
+          map,
+          center: pos,
+          radius: 40
+        });
+      }
+    });
+
+    // 🟨 Armadilhas - círculos amarelos
+    armadilhas.forEach(arm => {
+      if (arm.latitude && arm.longitude) {
+        const pos = { lat: parseFloat(arm.latitude), lng: parseFloat(arm.longitude) };
+        new google.maps.Circle({
+          strokeColor: "#FFD700",
+          fillColor: "#FFD700",
+          strokeOpacity: 0.8,
+          fillOpacity: 0.35,
+          map,
+          center: pos,
+          radius: 40
+        });
+      }
+    });
+  }
+</script>
+{% endblock %}

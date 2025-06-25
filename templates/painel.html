@@ -1,0 +1,47 @@
+{% extends base_template %}
+{% block content %}
+
+<div class="container mt-5">
+  <h2>Minhas Denúncias</h2>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} mt-3">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  {% if denuncias %}
+    <table class="table table-bordered mt-4">
+      <thead class="table-dark">
+        <tr>
+          <th>ID</th>
+          <th>Imagem</th>
+          <th>Resultado</th>
+          <th>Status</th>
+          <th>Data</th>
+          <th>Endereço</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for denuncia in denuncias %}
+        <tr>
+          <td>{{ denuncia.id }}</td>
+          <td>
+            <img src="{{ url_for('static', filename='uploads/' ~ denuncia.imagem) }}" alt="imagem" width="100">
+          </td>
+          <td>{{ denuncia.resultado }}</td>
+          <td>{{ denuncia.status }}</td>
+          <td>{{ denuncia.data.strftime('%d/%m/%Y %H:%M') }}</td>
+          <td>{{ denuncia.endereco or "Endereço não disponível" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="mt-4">Nenhuma denúncia registrada ainda.</p>
+  {% endif %}
+</div>
+
+{% endblock %}

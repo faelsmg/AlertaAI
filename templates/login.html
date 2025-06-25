@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+<h4 class="mb-4 text-center">Entrar no AlertaAi</h4>
+<form method="post">
+    <div class="mb-3">
+        <label for="email" class="form-label">E-mail:</label>
+        <input type="email" class="form-control" name="email" required>
+    </div>
+    <div class="mb-3">
+        <label for="senha" class="form-label">Senha:</label>
+        <input type="password" class="form-control" name="senha" required>
+    </div>
+    <button type="submit" class="btn btn-primary w-100">Entrar</button>
+    <p class="mt-3 text-center">Não tem conta? <a href="{{ url_for('cadastro') }}">Cadastre-se</a></p>
+</form>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends 'base_agente.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Painel do Agente</h2>
+  <div class="row">
+    <div class="col-md-6 mb-3">
+      <div class="card shadow-sm">
+        <div class="card-body text-center">
+          <h4 class="card-title">Chamados Pendentes</h4>
+          <p class="display-5">{{ total_pendentes }}</p>
+          <a href="{{ url_for('agente_routes.agente_denuncias') }}" class="btn btn-outline-primary">Ver Chamados</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 mb-3">
+      <div class="card shadow-sm">
+        <div class="card-body text-center">
+          <h4 class="card-title">Total de Armadilhas</h4>
+          <p class="display-5">{{ total_armadilhas }}</p>
+          <a href="{{ url_for('agente_routes.agente_mapa') }}" class="btn btn-outline-success">Ver no Mapa</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

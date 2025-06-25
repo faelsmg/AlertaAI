@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Resultado da Análise:</h2>
+<img src="{{ url_for('static', filename='uploads/' + imagem.split('/')[-1]) }}" width="100%" class="rounded mb-3">
+
+{% if larva %}
+    <div class="alert alert-success">✅ Larva do Aedes detectada. Denúncia registrada!</div>
+{% else %}
+    <div class="alert alert-danger">❌ Nenhuma larva detectada. Por favor, envie outra imagem.</div>
+{% endif %}
+
+<hr>
+<h5>Dados da denúncia:</h5>
+<ul>
+    <li><strong>Comentário:</strong> {{ comentario if comentario else "Nenhum" }}</li>
+    <li><strong>Latitude:</strong> {{ latitude }}</li>
+    <li><strong>Longitude:</strong> {{ longitude }}</li>
+</ul>
+<a href="{{ url_for('nova_denuncia') }}" class="btn btn-outline-primary mt-3 w-100">Fazer nova denúncia</a>
+{% endblock %}

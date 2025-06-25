@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>AlertaAi - Agente</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet" />
+</head>
+<body>
+  <div class="d-flex">
+    <!-- Menu lateral -->
+    <nav class="bg-dark text-white p-3 vh-100" style="width: 250px;">
+      <h4 class="mb-4">Painel do Agente</h4>
+      <ul class="nav flex-column">
+	  <li class="nav-item">
+		  <a href="{{ url_for('agente_routes.armadilhas_agente') }}" class="nav-link text-white">🪤 Armadilhas</a>
+		</li>
+		<li class="nav-item">
+		  <a href="{{ url_for('agente_routes.perfil_agente') }}" class="nav-link text-white">👤 Meu Perfil</a>
+		</li>
+        <li class="nav-item"><a href="{{ url_for('agente_routes.painel_agente') }}" class="nav-link text-white">📋 Painel</a></li>
+        <li class="nav-item"><a href="{{ url_for('agente_routes.agente_mapa') }}" class="nav-link text-white">🗺️ Mapa</a></li>
+        <li class="nav-item"><a href="{{ url_for('agente_routes.agente_denuncias') }}" class="nav-link text-white">🚨 Denúncias</a></li>
+        <li class="nav-item"><a href="{{ url_for('logout') }}" class="nav-link text-white">🚪 Sair</a></li>
+      </ul>
+    </nav>
+	<footer style="position: fixed; bottom: 0; left: 0; width: 100%; font-size: 12px; background-color: #f8f9fa; text-align: center; padding: 3px; border-top: 1px solid #dee2e6;">
+  Usuário logado: {{ current_user.nome }} | Tipo: {{ current_user.tipo }}{% if current_user.tipo == 'agente' and current_user.grupo %} | Grupo: {{ current_user.grupo.nome }}{% endif %}
+</footer>
+    <!-- Conteúdo principal -->
+    <div class="flex-grow-1 p-4">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+      
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

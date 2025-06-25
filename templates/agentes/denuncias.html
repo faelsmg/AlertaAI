@@ -1,0 +1,46 @@
+{% extends 'base_agente.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>📋 Denúncias do Meu Grupo</h2>
+
+  {% if denuncias %}
+    <table class="table table-bordered table-hover mt-3">
+      <thead class="thead-dark">
+        <tr>
+          <th>ID</th>
+          <th>Data</th>
+          <th>Status</th>
+          <th>Bairro</th>
+          <th>Endereço</th>
+          <th>Resultado IA</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for d in denuncias %}
+        <tr>
+          <td>{{ d.id }}</td>
+          <td>{{ d.data.strftime('%d/%m/%Y') if d.data }}</td>
+          <td>{{ d.status }}</td>
+          <td>{{ d.bairro or 'N/A' }}</td>
+          <td>{{ d.endereco or 'N/A' }}</td>
+          <td>
+            {% if d.resultado_ia %}
+              <span class="badge bg-danger">Positivo</span>
+            {% else %}
+              <span class="badge bg-success">Negativo</span>
+            {% endif %}
+          </td>
+          <td>
+            <a href="{{ url_for('agente_routes.ver_denuncia', id=d.id) }}" class="btn btn-sm btn-primary">🔍 Ver</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <div class="alert alert-info mt-4">Nenhuma denúncia registrada para seu grupo.</div>
+  {% endif %}
+</div>
+{% endblock %}

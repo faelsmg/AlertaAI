@@ -1,0 +1,47 @@
+{% extends 'base_agente.html' %}
+
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Chamados Atribuídos</h2>
+
+  {% if chamados %}
+    <table class="table table-bordered mt-4">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Data</th>
+          <th>Endereço</th>
+          <th>Bairro</th>
+          <th>Status</th>
+          <th>IA Detectou</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in chamados %}
+        <tr>
+          <td>{{ c.id }}</td>
+          <td>{{ c.data.strftime('%d/%m/%Y %H:%M') if c.data else '' }}</td>
+          <td>{{ c.endereco }}</td>
+          <td>{{ c.bairro or '' }}</td>
+          <td>{{ c.status }}</td>
+          <td>
+            {% if c.resultado_ia %}
+              <span class="badge bg-danger">Sim</span>
+            {% else %}
+              <span class="badge bg-success">Não</span>
+            {% endif %}
+          </td>
+          <td>
+            <a href="{{ url_for('agente_routes.detalhar_chamado_agente', id=c.id) }}" class="btn btn-sm btn-info">Detalhar</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>Nenhum chamado encontrado.</p>
+  {% endif %}
+</div>
+{% endblock %}

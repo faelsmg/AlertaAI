@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2>Nova Denúncia</h2>
+  <form method="POST" enctype="multipart/form-data" id="denunciaForm">
+    <div class="form-group">
+      <label for="foto">Foto:</label>
+      <input type="file" class="form-control" name="foto" required>
+    </div>
+
+    <div class="form-group mt-3">
+      <label for="endereco">Endereço detectado:</label>
+      <input type="text" class="form-control" name="endereco" id="endereco" readonly placeholder="Detectando localização...">
+    </div>
+
+    <input type="hidden" name="latitude" id="latitude">
+    <input type="hidden" name="longitude" id="longitude">
+	<input type="hidden" name="bairro" id="bairro">
+
+    <button type="submit" class="btn btn-primary mt-3">Enviar Denúncia</button>
+  </form>
+</div>
+
+<script>
+  function buscarEndereco(lat, lon) {
+  const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&zoom=18&addressdetails=1`;
+  fetch(url, { headers: { 'User-Agent': 'AlertaAiApp/1.0' } })
+    .then(response => response.json())
+    .then(data => {
+      const a = data.address;
+      const enderecoFormatado = `${a.road || ''}, ${a.suburb || a.neighbourhood || ''}, ${a.city || a.town || ''}, ${a.postcode || ''}, ${a.state || ''}`;
+      document.getElementById("endereco").value = enderecoFormatado.trim();
+      
+      // ✅ Define o bairro (fallback: cidade ou "Desconhecido")
+      const bairro = a.suburb || a.neighbourhood || a.city || a.town || "Desconhecido";
+      document.getElementById("bairro").value = bairro;
+    })
+    .catch(err => {
+      document.getElementById("endereco").value = "Endereço não disponível";
+      document.getElementById("bairro").value = "Desconhecido";  // fallback
+      console.error("Erro ao buscar endereço:", err);
+    });
+}
+
+  function detectarLocalizacao() {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        position => {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+          document.getElementById("latitude").value = lat;
+          document.getElementById("longitude").value = lon;
+          buscarEndereco(lat, lon);
+        },
+        error => {
+          document.getElementById("endereco").value = "Não foi possível obter localização.";
+          console.error("Erro de geolocalização:", error);
+        }
+      );
+    } else {
+      document.getElementById("endereco").value = "Geolocalização não suportada.";
+    }
+  }
+
+  window.onload = detectarLocalizacao;
+</script>
+{% endblock %}
