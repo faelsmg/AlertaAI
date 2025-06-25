@@ -4,3 +4,4 @@ flask_login==0.6.3
 gunicorn==21.2.0
 torch==2.7.1
 ultralytics==8.3.153
+flask_migrate==4.0.5
